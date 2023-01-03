@@ -1,15 +1,27 @@
-const express = require("express");
-const app = express();
+const express = require('express')
 const dotenv = require('dotenv').config()
-app.use(express.json());
+const connectDB = require('./config/db')
+const colors = require('colors')
+const app = express()
+app.use(express.json())
+const productRoutes = require('./routes/productRoutes')
+const userRoutes = require('./routes/userRoutes')
+const { notFound, errorHandler } = require('./middleware/errorMiddleware')
+
+connectDB()
+
 
 app.get('/', (req, res) => {
-    return res.json(
-        { "status": "server is working" }
-    );
+    res.send("API is running");
 })
 
+app.use('/api/products', productRoutes)
+app.use('/api/users', userRoutes)
 
-const port = process.env.PORT;
+app.use(notFound)
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.use(errorHandler)
+
+const port = process.env.PORT || 5000;
+
+app.listen(port, console.log(`Server is running in ${process.env.NODE_ENV} on ${port}`.cyan.underline));
